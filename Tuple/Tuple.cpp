@@ -21,7 +21,7 @@ namespace Tuple{
 		
 		std::tuple<const char*,int,double> item=std::make_tuple("cyc",3,2.0);
 		auto UNUSED(book) =std::get<0>(item);
-		// book="lym";
+		book="lym";
 
 		std::size_t sz=std::tuple_size<std::tuple<const char*,int,double>>::value;
 		std::cout<<"item is size....: "<<sz<<std::endl;
