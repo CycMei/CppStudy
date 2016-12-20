@@ -21,12 +21,26 @@ namespace Tuple{
 		
 		std::tuple<const char*,int,double> item=std::make_tuple("cyc",3,2.0);
 		auto UNUSED(book) =std::get<0>(item);
-		book="lym";
+		// book="lym";
 
 		std::size_t sz=std::tuple_size<std::tuple<const char*,int,double>>::value;
 		std::cout<<"item is size....: "<<sz<<std::endl;
 
 		std::tuple_element<1,std::tuple<const char*,int,double>>::type UNUSED(cnt)=std::get<1>(item);
+
+
+		std::tuple<int,double> id_tuple{2,2.2};
+		std::tuple<std::string,int> di_tuple(std::string("cyc"),2);
+		// if(id_tuple==di_tuple){
+		// 	std::cout<<"id_tuple==di_tuple......"<<std::endl;
+		// }
+		std::tuple<int,double,int> idi_tuple(2,2.2,2);
+		// if(id_tuple==idi_tuple){
+		// 	std::cout<<"id_tuple==idi_tuple......"<<std::endl;
+		// }
+		std::tuple<int,double> cid_tuple(2,2.2);
+		if(id_tuple==cid_tuple)
+			std::cout<<"id_tuple==cid_tuple...."<<std::endl;
 	}
 }
 
