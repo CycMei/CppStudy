@@ -40,6 +40,7 @@ namespace Tuple{
 		// }
 		std::tuple<int,double> cid_tuple(2,2.2);
 		if(id_tuple==cid_tuple)
+			//sssssss
 			std::cout<<"id_tuple==cid_tuple...."<<std::endl;
 	}
 }
