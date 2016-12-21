@@ -2,6 +2,7 @@
 #include<string>
 #include<vector>
 #include<list>
+#include<utility>
 #include<iostream>
 
 #include"UNUSED.h"
@@ -41,6 +42,16 @@ namespace Tuple{
 		std::tuple<int,double> cid_tuple(2,2.2);
 		if(id_tuple==cid_tuple)
 			std::cout<<"id_tuple==cid_tuple...."<<std::endl;
+
+		std::tuple<int,int,int> iii_tuple(10,20,30);
+
+		std::tuple<std::string,std::vector<std::string>,std::pair<std::string,int>> svp_tuple{
+			std::string("cyc"),
+			{std::string("cyc")},
+			std::make_pair("cyc",520)
+		};
+
+
 	}
 }
 
