@@ -16,6 +16,8 @@ namespace Bitset{
 
 		std::bitset<128> bitvec3(~0ULL);
 		std::cout<<std::setbase(2)<<bitvec3<<std::endl;	
+
+
 	}
 }
 
