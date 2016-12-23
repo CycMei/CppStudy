@@ -1,11 +1,13 @@
 #ifndef FIBONACCI_H
 #define FIBONACCI_H
 
-#include"../require.h"
+#include<string>
+
+void require(bool,const std::string&);
 
 int fibonacci(const int n){
 	const int sz=100;
-	require(n<sz);
+	require(n<sz,"");
 	static int f[sz];
 	f[0]=f[1]=1;
 	int i=0;

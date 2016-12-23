@@ -2,10 +2,9 @@
 #define INTSTACK_H
 
 #include"fibonacci.h"
-#include"../require.h"
 #include<iostream>
 
-
+void require(bool,const std::string&);
 class IntStack{
 private:
 	enum {ssize=100};
