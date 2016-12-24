@@ -8,11 +8,15 @@ namespace MArray{
 		enum {size=100};
 		T A[size];
 	public:
-		T &operator[](int index){
-			require(index<0||index>=size,"index out of rang.....");	
-			return A[index];
-		}
+		T &operator[](int index);
 	};
+
+}
+
+template<typename T> T &MArray::Array<T>::operator[](int index){
+
+	require(index<0||index>=size,"index out of rang.....");	
+	return A[index];
 
 }
 
