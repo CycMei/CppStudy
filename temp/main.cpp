@@ -9,6 +9,7 @@ void test(){
 	for(int k=0;k<20;++k){
 		std::cout<<is.pop()<<std::endl;
 	}
+    std::cout<<"ss"<<std::endl;
 }
 
 void ArrayTest();
