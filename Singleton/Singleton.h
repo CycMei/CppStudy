@@ -34,9 +34,11 @@ namespace SINGLETON {
 
 
 	class Cyc :public Singleton<Cyc> {
-	public:
+	private:
+		friend Cyc &Singleton<Cyc>::Instance();
 		Cyc(){
 		}
+	private:
 		~Cyc(){}
 	};
 
