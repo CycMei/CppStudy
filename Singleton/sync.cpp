@@ -2,6 +2,8 @@
 
 #include<random>
 #include<cassert>
+#include<typeinfo>
+#include<ratio>
 
 namespace SYNC {
 
@@ -436,7 +438,73 @@ namespace SYNC {
 				break;
 		}
 	}
+	void mratio() {
+		typedef std::ratio<2, 4> a;
+		typedef std::ratio<1, 3> b;
+		typedef std::ratio_add<a, b> c;
+		typedef std::ratio_less<b, a> d;
+		std::cout << "a num: " << a::num << "  a den:  " << a::den << std::endl;
+		std::cout << "b num:  " << b::num << "  b den:  " << b::den << std::endl;
+		std::cout << "c num:  " << c::num << " c den:  " << c::den << std::endl;
+		std::cout << "d num:  " << d::value << std::endl;
+	}
 
+
+
+
+
+
+
+
+
+
+	int ifun(int ii) {
+		return int(ii);
+	}
+	typedef int(&fn_ref)(int);
+	typedef int(*fn_ptr)(int);
+	struct fn_class {
+		int operator()(int i) {
+			return i;
+		}
+	};
+
+	void spawn_tasktestss() {
+		int i = 3;
+		spawn_task(ifun, std::move(i));
+	}
+
+	decltype(ifun) &reRef(int) {
+		return ifun;
+	}
+
+	int (&copyreRef(int))(int) {
+		return ifun;
+	}
+
+	decltype(ifun) &ss = copyreRef(3);
+
+	void result_ofsss() {
+
+		typedef decltype(ifun) &ss(int);
+		//int (&sss(int)) (int);
+
+		typedef std::result_of<ss>::type A;
+		//std::cout << typeid(decltype(reRef)).name() << std::endl;
+		//typedef std::result_of<decltype(reRef)>::type A;
+		std::cout << typeid(A).name() << std::endl;
+		std::cout << "A:  " <<std::boolalpha<< std::is_same<int, A>::value << std::endl;
+
+		typedef std::result_of<fn_ref(int)>::type B;
+		std::cout << "B:  " << std::boolalpha << std::is_same<int, B>::value << std::endl;
+
+		typedef std::result_of<fn_ptr(int)>::type C;
+		std::cout << "C:  " << std::boolalpha << std::is_same<int, C>::value << std::endl;
+
+		typedef std::result_of<fn_class(int)>::type D;
+		std::cout << "D:  " << std::boolalpha << std::is_same<int, D>::value << std::endl;
+
+	}
 
 
 

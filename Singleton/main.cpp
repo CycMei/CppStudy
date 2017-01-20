@@ -316,6 +316,28 @@ void stest15() {
 	SYNC::wait_loop();
 }
 
+void stest16() {
+	SYNC::mratio();
+}
+
+void stest17() {
+	std::list<int> iList{ 5, 7, 3, 4, 1, 9, 2, 8, 10, 6 };
+	//auto &res=SYNC::sequential_quick_sort(iList);
+	auto &res1 = SYNC::fpquickSort(iList);
+	//for (const auto &c : res) {
+	//	std::cout << c << "  ";
+	//}
+	std::cout << std::endl;
+	for (const auto &c : res1) {
+		std::cout << c << "  ";
+	}
+}
+
+void stest18() {
+	//SYNC::result_ofsss();
+	SYNC::spawn_tasktestss();
+}
+
 int main() {
-	stest15();
+	stest18();
 }

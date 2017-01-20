@@ -8,7 +8,9 @@
 #include<memory>
 #include<future>
 #include<string>
+#include<algorithm>
 #include<iostream>
+#include<list>
 #include<utility>
 #include<condition_variable>
 
@@ -43,6 +45,13 @@ namespace SYNC {
 	void getCurTimeByChrono();
 
 	void wait_loop();
+	
+	void mratio();
+
+	void result_ofsss();
+
+	void spawn_tasktestss();
+
 
 	template<typename T> class threadsafe_queue {
 	private:
@@ -152,6 +161,66 @@ namespace SYNC {
 		data_queue.pop();
 		return res;
 	}
+}
+
+
+namespace SYNC {
+ 	template<typename T> std::list<T> sequential_quick_sort(std::list<T> input) {
+		if (input.empty())
+			return input;
+		std::list<T> result;
+		result.splice(result.begin(), input, input.begin());
+		const T &pivot = *result.begin();
+		//std::list<T>::iterator divide_point;
+		auto divide_point = std::partition(input.begin(), input.end(), [&](const T &t)->bool {
+			return t < pivot;
+		});
+		std::list<T> lower_part;
+		lower_part.splice(lower_part.end(), input, input.begin(), divide_point);
+		auto new_lower(sequential_quick_sort(std::move(lower_part)));
+		auto new_higher(sequential_quick_sort(std::move(input)));
+		result.splice(result.end(), new_higher);
+		result.splice(result.begin(), new_lower);
+		return result;
+	}
+
+
+	template<typename Fun, typename T>
+	std::future<typename std::result_of<Fun(T&&)>::type> spawn_task(Fun &&f, T &&a) {
+		typedef typename std::result_of<Fun(T&&)>::type result_type;
+		std::packaged_task<result_type(T&&)> task(std::move(f));
+		std::future<result_type> res(task.get_future());
+		std::thread t(std::move(task), std::move(a));
+		t.detach();
+		return  res;
+	}
+
+
+	template<typename T> std::list<T> fpquickSort(std::list<T> input) {
+		if (input.empty())
+			return input;
+		std::list<T> result;
+		result.splice(result.begin(), input, input.begin());
+		const T &pivot = *result.begin();
+		//std::list<T>::iterator divide_point;
+		auto divide_point = std::partition(input.begin(), input.end(), [&](const T &t)->bool {
+			return t < pivot;
+		});
+
+		std::list<T> lower_part;
+		lower_part.splice(lower_part.end(), input, input.begin(), divide_point);
+		std::future<std::list<T>> new_lower(std::async(fpquickSort<T>, std::move(lower_part)));
+		//std::future<std::list<int>> new_lower(spawn_task(fpquickSort, std::move(lower_part)));
+		auto new_higher(fpquickSort(std::move(input)));
+		result.splice(result.end(), new_higher);
+		result.splice(result.begin(), new_lower.get());
+		return result;
+	}
+
+
+
+
+
 }
 
 
