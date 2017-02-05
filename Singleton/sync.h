@@ -52,6 +52,14 @@ namespace SYNC {
 
 	void spawn_tasktestss();
 
+	void sleepTime();
+
+	void mcdnotiy();
+
+	void timethread();
+
+	void futureTime();
+
 
 	template<typename T> class threadsafe_queue {
 	private:

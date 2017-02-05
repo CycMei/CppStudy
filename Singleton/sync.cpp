@@ -509,6 +509,105 @@ namespace SYNC {
 
 
 
+	std::chrono::high_resolution_clock::time_point points;
+	void sleep1() {
+		std::chrono::duration<double, std::ratio<1, 1000>> duration(2000);
+		std::this_thread::sleep_for(duration);
+		std::cout << "duration:   " << duration.count() << std::endl;
+	}
+	void sleep2() {
+		//std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::milliseconds> points;
+		
+		std::this_thread::sleep_until(points + (std::chrono::milliseconds(10 * 1000)));
+		std::cout << points.time_since_epoch().count() << std::endl;
+	}
+
+	void sleepTime() {
+		points = std::chrono::high_resolution_clock::now();
+		std::thread t1(sleep1);
+		std::thread t2(sleep2);
+		t1.detach();
+		t2.detach();
+		system("pause");
+	}
+
+
+
+
+
+	std::condition_variable mcd;
+	std::mutex mcd_lock;
+	void mdcres() {
+		while (true) {
+
+		}
+		mcd.notify_all();
+	}
+	void recmcdcopy();
+	void recmcd() {
+		//recmcdcopy();
+		std::unique_lock<std::mutex> lk(mcd_lock);
+		if (mcd.wait_for(lk, std::chrono::duration<double, std::ratio<1, 1000>>(2000)) == std::cv_status::timeout) {
+			std::cout << "time out  " << std::endl;
+		}
+	}
+	void recmcdcopy() {
+		std::unique_lock<std::mutex> lk(mcd_lock);
+		bool bl= mcd.wait_until(lk, std::chrono::steady_clock::now() + std::chrono::milliseconds(5 * 1000), []()->bool {
+			int i = 3;
+			++i;
+			return i = 0;
+		});
+		if (!bl) {
+			std::cout << "time out  11111" << std::endl;
+		}
+	}
+	void mcdnotiy() {
+		std::thread t1(mdcres);
+		std::thread t2(recmcd);
+		std::thread t3(recmcdcopy);
+		t1.detach();
+		t2.detach();
+		t3.detach();
+		system("pause");
+	}
+
+
+
+
+
+
+	std::timed_mutex time_lock;
+	void upLokc() {
+		std::lock_guard<std::timed_mutex> lk(time_lock);
+		while (1) {
+
+		}
+	}
+	void timelock() {
+		if (!time_lock.try_lock_for(std::chrono::milliseconds(5 * 1000)))
+			std::cout << "not get lock  ... " << std::endl;
+	}
+	void timethread() {
+		std::thread t1(upLokc);
+		std::thread t2(timelock);
+		t1.detach();
+		t2.detach();
+		system("pause");
+	}
+
+
+
+
+	void futureTime() {
+		std::future<void> f = std::async(upLokc);
+		if (f.wait_for(std::chrono::milliseconds(5 * 1000)) == std::future_status::timeout) {
+			std::cout << "future time out " << std::endl;
+			f.get();
+		}
+		system("pause");
+	}
+
 
 
 

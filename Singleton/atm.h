@@ -1,171 +1,192 @@
 #ifndef ATM_H
 #define ATM_H
 
-#include<mutex>
-#include<condition_variable>
-#include<queue>
-#include<memory>
+#include<string>
+#include<iostream>
 
-namespace messaging {
+#include"messaging.h"
 
-	struct message_bace {
-		virtual ~message_bace(){}
+namespace ATM {
+	struct withdraw {
+		std::string account;
+		unsigned int amount;
+		mutable messaging::sender atm_queue;
+		withdraw(const std::string &account_, unsigned amount_, messaging::sender atm_queue_);
 	};
 
-	template<typename Msg> struct wrapped_message :public message_bace {
-		Msg contents;
-		explicit wrapped_message(const Msg &contents_) :contents(contents_) {}
+	struct widthdraw_ok {
+
 	};
 
-	class queue {
-	private:
-		std::mutex m;
-		std::condition_variable c;
-		std::queue<std::shared_ptr<message_bace>> q;
-	public:
-		template<typename T> void push(const T &msg);
-		std::shared_ptr<message_bace> wait_and_pop();
+	struct withdraw_denied {
+
 	};
 
-
-	class sender {
-	private:
-		queue *q;
-	public:
-		sender():q(nullptr){}
-		explicit sender(queue *q_):q(q_){}
-		template<typename Message> void send(const Message &msg);
+	struct cancel_withdrawal {
+		std::string account;
+		unsigned amount;
+		cancel_withdrawal(const std::string &account_, unsigned amount_);
 	};
 
-	class dispatcher;
-	class receiver {
-	private:
-		queue q;
-	public:
-		operator sender();
-		dispatcher wait();
+	struct withdrawal_processed {
+		std::string account;
+		unsigned amount;
+		withdrawal_processed(const std::string &account_, unsigned amount_);
 	};
 
+	struct card_inserted {
+		std::string account;
+		explicit card_inserted(const std::string &account_);
+	};
 
-	class close_queue{};
+	struct digit_pressed {
+		char digit;
+		explicit digit_pressed(char digit_);
+	};
 
-	class dispatcher {
-	private:
-		queue *q;
-		bool chained;
-		dispatcher(const dispatcher&) = delete;
-		dispatcher &operator=(const dispatcher&) = delete;
+	struct clear_last_pressed {
 
-		template<typename Dispatcher,typename Msg,typename Func>
-		friend class TemplateDispatcher;
+	};
 
-		void wait_and_dispatch();
-		bool dispatch(const std::shared_ptr<message_bace> &msg);
-	public:
-		dispatcher(dispatcher &&other);
-		explicit dispatcher(queue *q_);
+	struct eject_card {
 
-		template<typename Message,typename Func> 
-		TemplateDispatcher<dispatcher, Message, Func> handle(Func &&f);
+	};
 
-		~dispatcher() noexcept(false);
+	struct withdraw_pressed {
+		unsigned int amount;
+		explicit withdraw_pressed(unsigned int amount_);
+	};
+
+	struct cancel_pressed {
+
+	};
+
+	struct issue_money {
+		unsigned int amount;
+		explicit issue_money(unsigned int amount_);
 	};
 
 
-	template<typename PreviousDispatcher,typename Msg,typename Func>
-	class TemplateDispatcher {
-	private:
-		queue *q;
-		PreviousDispatcher *prev;
-		Func f;
-		bool chained;
-		TemplateDispatcher(const TemplateDispatcher&) = delete;
-		TemplateDispatcher &operator=(const TemplateDispatcher&) = delete;
+	struct verify_pin {
+		std::string account;
+		std::string pin;
+		mutable messaging::sender atm_queue;
+		verify_pin(const std::string &account_, const std::string &pin_, messaging::sender atm_queue_);
+	};
+	
+	struct pin_verified {
 
-		template<typename Dispatcher,typename OtherMsg,typename OtherFunc>
-		friend class TemplateDispatcher;
-
-		void wait_and_dispatch();
-		bool dispatch(const std::shared_ptr<message_bace> &msg);
-	public:
-		TemplateDispatcher(TemplateDispatcher &&other);
-		TemplateDispatcher(queue *q_, PreviousDispatcher *prev_, Func &&f_);
-		template<typename OtherMsg, typename OtherFunc> TemplateDispatcher handle(OtherFunc &&of);
-		~TemplateDispatcher() noexcept(false);
 	};
 
+	struct pin_incorrect {
 
+	};
+
+	struct display_enter_pin {
+
+	};
+
+	struct display_enter_card {
+
+	};
+
+	struct display_insufficient_funds {
+
+	};
+
+	struct display_withdrawal_cancelled {
+
+	};
+
+	struct display_pin_incorrect_message {
+
+	};
+
+	struct display_withdrawal_options {
+
+	};
+
+	struct get_balance {
+		std::string account;
+		mutable messaging::sender atm_queue;
+		get_balance(const std::string &account_, messaging::sender atm_queue_);
+	};
+
+	struct balance {
+		unsigned int amount;
+		explicit balance(unsigned int amount_);
+	};
+
+	struct display_balance {
+		unsigned int amount;
+		explicit display_balance(unsigned int amount_);
+	};
+
+	struct balance_pressed {
+
+	};
 
 }
+
+
+namespace ATM {
+	using namespace messaging;
+	class atm {
+	private:
+		receiver incoming;
+		sender bank;
+		sender interface_hardware;
+		void (atm::*state)();
+		std::string account;
+		unsigned withdrawal_amount;
+		std::string pin;
+		void process_withdrawal();
+		void process_balance();
+		void wait_for_action();
+		void verifying_pin();
+		void getting_pin();
+		void waiting_for_card();
+		void done_processing();
+		atm(const atm&) = delete;
+		atm &operator=(const atm&) = delete;
+	public:
+		atm(sender bank_, sender interface_handware_);
+		void done();
+		void run();
+		sender get_sender();
+	};
+}
+
+namespace ATM {
+	class bank_machine {
+	private:
+		receiver incoming;
+		unsigned int balance;
+	public:
+		bank_machine();
+		void done();
+		void run();
+		sender get_sender();
+	};
+}
+
+
+namespace ATM {
+
+	class interface_machine {
+	private:
+		std::mutex iom;
+		receiver incoming;
+	public:
+		void done();
+		void run();
+		sender get_sender();
+	};
+
+}
+
+namespace ATM {
+	void atmMain();
+}
+
 #endif
-
-namespace messaging {
-	template<typename T> inline void queue::push(const T & msg) {
-		std::lock_guard<std::mutex> lk(m);
-		q.push(std::make_shared<wrapped_message<T>>(msg));
-		c.notify_all();
-	}
-}
-
-namespace messaging {
-	template<typename Message> inline void sender::send(const Message & msg) {
-		if (q)
-			q->push(msg);
-	}
-}
-
-namespace messaging {
-	template<typename Message, typename Func>
-	inline TemplateDispatcher<dispatcher, Message, Func> dispatcher::handle(Func && f) {
-		return TemplateDispatcher<dispatcher, Message, Func>(q, this, std::forward<Func>(f));
-	}
-}
-
-namespace messaging {
-
-	template<typename PreviousDispatcher, typename Msg, typename Func>
-	inline void TemplateDispatcher<PreviousDispatcher, Msg, Func>::wait_and_dispatch() {
-		for (;;) {
-			auto mes = q->wait_and_pop();
-			if (dispatch(msg))
-				break;
-		}
-	}
-
-	template<typename PreviousDispatcher, typename Msg, typename Func>
-	inline bool TemplateDispatcher<PreviousDispatcher, Msg, Func>::dispatch(const std::shared_ptr<message_bace>& msg) {
-		if (wrapped_message<Msg> *wrapper = dynamic_cast<wrapped_message<Msg>*>(msg.get())) {
-			f(wrapper->contents);
-			return true;
-		}
-		else {
-			return prev->dispatch(msg);
-		}
-	}
-
-	template<typename PreviousDispatcher, typename Msg, typename Func>
-	inline TemplateDispatcher<PreviousDispatcher, Msg, Func>::TemplateDispatcher(TemplateDispatcher && other)
-		:q(other.q), prev(other.prev), f(std::move(other.f)), chained(other.chained) {
-		other.chained = true;
-	}
-
-	template<typename PreviousDispatcher, typename Msg, typename Func>
-	inline TemplateDispatcher<PreviousDispatcher, Msg, Func>::TemplateDispatcher(queue * q_, PreviousDispatcher * prev_, Func && f_)
-		: q(q_), prev(prev_), f(std::forward<Func>(f_)), chained(false) {
-		prev_->chained = true;
-	}
-
-	template<typename PreviousDispatcher, typename Msg, typename Func>
-	template<typename OtherMsg, typename OtherFunc>
-	inline TemplateDispatcher<PreviousDispatcher, Msg, Func> TemplateDispatcher<PreviousDispatcher, Msg, Func>::handle(OtherFunc &&of) {
-		return TemplateDispatcher<TemplateDispatcher, OtherMsg, OtherFunc>(q, this, std::forward<OtherFunc>(of));
-	}
-
-	template<typename PreviousDispatcher, typename Msg, typename Func>
-	inline TemplateDispatcher<PreviousDispatcher, Msg, Func>::~TemplateDispatcher() noexcept(false) {
-		if (!chained)
-			wait_and_dispatch();
-	}
-
-
-}

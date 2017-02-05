@@ -2,6 +2,8 @@
 #include"Thread.h"
 #include"mutex.h"
 #include"sync.h"
+//#include"messaging.h"
+#include"atm.h"
 
 
 #include<Windows.h>
@@ -338,6 +340,37 @@ void stest18() {
 	SYNC::spawn_tasktestss();
 }
 
+void sstest1() {
+	messaging::test1();
+}
+
+void sstest2() {
+	ATM::atmMain();
+}
+int pint = 3;
+int *rp() {
+	return &pint;
+}
+
+void sstest3() {
+	int i = 1;
+	bool &&ss = 2 < 3;
+	int &&intRes = 3 + 2;
+	int &&a = i++;
+
+	auto &&b = 2 | 3;
+	int *&&pints=rp();
+}
+
+void sstest4() {
+	SYNC::sleepTime();
+}
+
+void sstest5() {
+	//SYNC::mcdnotiy();
+	SYNC::futureTime();
+}
+
 int main() {
-	stest18();
+	sstest5();
 }
