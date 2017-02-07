@@ -4,6 +4,8 @@
 #include"sync.h"
 //#include"messaging.h"
 #include"atm.h"
+#include"atomic.h"
+#include"lockstruct.h"
 
 
 #include<Windows.h>
@@ -371,6 +373,14 @@ void sstest5() {
 	SYNC::futureTime();
 }
 
+void aatest1() {
+	ATOMIC::xxyyzz();
+}
+
+void locktest1() {
+	LOCKSTRUCT::threadsafelist();
+}
+
 int main() {
-	sstest5();
+	locktest1();
 }
